@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuizCraft</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f0f2f5;
+        }
+        .container {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        textarea {
+            width: 100%;
+            height: 300px;
+            margin-bottom: 1rem;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        button {
+            background-color: #4a90e2;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #357abd;
+        }
+        .example {
+            background-color: #f8f9fa;
+            padding: 1rem;
+            border-radius: 4px;
+            margin-top: 1rem;
+        }
+        .mode-checkbox {
+            margin-bottom: 1rem;
+        }
+        .mode-checkbox label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+        }
+        .mode-checkbox input[type="checkbox"] {
+            cursor: pointer;
+        }
+        .button-group {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        .mode-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+        }
+        .mode-checkbox input[type="checkbox"] {
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <p>Enter your questions in JSON format:</p>
+        <textarea id="jsonInput" placeholder='[
+  {
+    "questionText": "What is 2 + 2?",
+    "questionType": "MULTIPLE_CHOICE",
+    "options": ["3", "4", "5", "6"],
+    "correctAnswerIndex": 1,
+    "explanation": "2 + 2 equals 4 because it is basic arithmetic."
+  },
+  {
+    "questionText": "What is the capital of France?",
+    "questionType": "WRITTEN_ANSWER",
+    "correctWrittenAnswer": "Paris",
+    "explanation": "Paris is the capital and most populous city of France."
+  }
+]'></textarea>
+
+        <div class="button-group">
+            <button onclick="submitQuiz()">Create Quiz</button>
+            <label class="mode-checkbox">
+                <input type="checkbox" id="learnMode" checked>
+                Learn Mode
+            </label>
+        </div>
+
+        <div class="example">
+            <h3>Example Format:</h3>
+            <pre>[
+  {
+    "questionText": "What is 2 + 2?",
+    "questionType": "MULTIPLE_CHOICE",
+    "options": ["3", "4", "5", "6"],
+    "correctAnswerIndex": 1,
+    "explanation": "2 + 2 equals 4 because it's basic arithmetic."
+  },
+  {
+    "questionText": "What is the capital of France?",
+    "questionType": "WRITTEN_ANSWER",
+    "correctWrittenAnswer": "Paris",
+    "explanation": "Paris is the capital and most populous city of France."
+  }
+]</pre>
+        </div>
+    </div>
+
+    <script>
+        function submitQuiz() {
+            const jsonInput = document.getElementById('jsonInput').value;
+            const mode = document.getElementById('learnMode').checked ? 'learn' : 'test';
+
+            try {
+                const questions = JSON.parse(jsonInput);
+                fetch(`/submit?mode=${mode}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(questions)
+                })
+                .then(response => {
+                    if (response.ok) {
+                        window.location.href = `/quiz?mode=${mode}`;
+                    } else {
+                        alert('Error submitting quiz');
+                    }
+                });
+            } catch (e) {
+                alert('Invalid JSON format!');
+            }
+        }
+    </script>
+</body>
+</html> 
