@@ -1,14 +1,15 @@
-# Use a lightweight JDK base image
-FROM eclipse-temurin:17-jdk-alpine
-
-# Set the working directory
+# Build stage
+FROM eclipse-temurin:17-jdk-alpine AS build
 WORKDIR /app
+COPY . .
+RUN ./mvnw clean package -DskipTests
 
-# Copy the built JAR file into the image
-COPY target/QuizCraft-0.0.1-SNAPSHOT.jar app.jar
+# Run stage
+FROM eclipse-temurin:17-jre-alpine
+WORKDIR /app
+COPY --from=build /app/target/QuizCraft-0.0.1-SNAPSHOT.jar app.jar
 
-
-# Let Railway set the port (important!)
+# Let Railway set the port
 ENV PORT=8080
 
 # Expose the port
