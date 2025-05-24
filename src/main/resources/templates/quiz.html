@@ -8,70 +8,34 @@
     </head>
 
     <body>
-        <div class="container" th:data-mode="${mode}" th:data-question-type="${currentQuestion.questionType}">
-
-            <div class="progress" 
-                 th:data-current="${currentQuestionIndex}"
-                 th:data-total="${totalQuestions}">
-                <span th:text="${currentQuestionIndex +1}">?</span>/ <span th:text="${totalQuestions}">?</span>
+        <div class="container">
+            <div class="progress">
+                <span id="current-question">?</span>/<span id="total-questions">?</span>
             </div>
 
             <div class="question">
-                <h2 id="question-text" 
-                    th:text="${currentQuestion.questionText}"
-                    th:data-correct-answer-index="${currentQuestion.questionType.name() == 'MULTIPLE_CHOICE' and mode == 'learn' ? currentQuestion.correctAnswerIndex : ''}"
-                    th:data-correct-written-answer="${currentQuestion.questionType.name() == 'WRITTEN_ANSWER' and mode == 'learn' ? currentQuestion.correctWrittenAnswer: ''}">Question Text</h2>
+                <h2 id="question-text">Loading...</h2>
                 
                 <div id="answer-area">
-
-                    <!--MULTIPLE CHOICE-->
-                    <ul class="options" th:if="${currentQuestion.questionType.name() == 'MULTIPLE_CHOICE'}">
-                        <li th:each="option, optionStat:${currentQuestion.options}"
-                            th:text="${option}"
-                            th:data-index="${optionStat.index}"
-                            class="option"
-                            onclick="selectOption(this)">
-                            Option
-                        </li>
-                    </ul>
-
-                    <!--Written Answer-->
-                    <div class="written-answer-container" th:if="${currentQuestion.questionType.name() == 'WRITTEN_ANSWER'}">
-                        <textarea id="writtenAnswerInput" class="written-answer-input" placeholder="Your answer"></textarea>
-                        <!--Button for learn mode-->
-                        <button id="submitWrittenAnswerButton" th:if="${mode=='learn'}" onclick="submitWrittenAnswer()">Submit</button>
-                    </div>
                 </div>
 
-                <div id="explanationArea" class="explanation" style="display: none;"
-                     th:if="${currentQuestion.explanation != null and currentQuestion.explanation !=''}" 
-                     th:text="${currentQuestion.explanation}">
-                </div>
+                <div id="explanationArea" class="explanation" style="display: none"></div>
             </div>        
             
             <div class="modal" id="resultModal">
                 <div class="modal-content">
                     <h2>Quiz Results</h2>
-                    <div id="resultContent">
-
-                    </div>
+                    <div id="resultContent"></div>
                     <button onclick="closeResultModal()">Close</button>
                 </div>
             </div>
             
             <div class="navigation">
-                <button id="previousButton" onclick="fetchPreviousQuestion()"
-                th:if="${currentQuestionIndex!=0 || mode!='learn'}">Previous</button>
-                
-                <button id="finishOrQuitButton" onclick="handleFinishOrQuit()"
-                th:text="${mode eq 'learn'? 'Quit': 'Finish'}">Finish</button>
-
-                <button id="nextButton" onclick="fetchNextQuestion()"
-                    th:disabled="${mode eq 'learn' ? true : (currentQuestionIndex eq (totalQuestions - 1))}">Next</button>
+                <button id="quitButton" onclick="quit()">Quit</button>
+                <button id="nextButton" onclick="nextQuestion()" disabled>Next</button>
             </div>
         </div>
 
         <script src="/js/quiz.js"></script>
-        
     </body>
 </html>

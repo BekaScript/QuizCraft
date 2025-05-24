@@ -29,10 +29,7 @@ body {
 .option:hover {
     background-color: #f0f0f0;
 }
-.selected {
-    background-color: #4a90e2;
-    color: white;
-}
+
 .navigation {
     display: flex;
     justify-content: space-between;
@@ -61,19 +58,19 @@ button:disabled {
 
 /* Modal styles */
 .modal {
-    display: none;  /* Hidden by default */
+    display: none;
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);  /* Semi-transparent background */
-    z-index: 1000;  /* Make sure it's on top */
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
 }
 
 .modal-content {
     background-color: white;
-    margin: 15% auto;  /* Center the modal */
+    margin: 15% auto;
     padding: 20px;
     border-radius: 8px;
     width: 80%;
@@ -122,18 +119,9 @@ button:disabled {
     background-color: #357abd;
 }
 
-/* Style the finish button */
-#finishButton {
-    background-color: #28a745;
+.option.selected {
+    background-color: #4a90e2 !important;
     color: white;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-#finishButton:hover {
-    background-color: #218838;
 }
 
 .option.correct {

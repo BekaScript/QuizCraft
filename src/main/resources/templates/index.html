@@ -20,12 +20,12 @@
         }
         textarea {
             width: 100%;
-            height: 300px;
+            height: 200px;
             margin-bottom: 1rem;
             padding: 8px;
             border: 1px solid #ddd;
             border-radius: 4px;
-            font-family: monospace;
+            font-family: sans-serif;
         }
         button {
             background-color: #4a90e2;
@@ -34,27 +34,10 @@
             border: none;
             border-radius: 4px;
             cursor: pointer;
+            margin-right: 10px;
         }
         button:hover {
             background-color: #357abd;
-        }
-        .example {
-            background-color: #f8f9fa;
-            padding: 1rem;
-            border-radius: 4px;
-            margin-top: 1rem;
-        }
-        .mode-checkbox {
-            margin-bottom: 1rem;
-        }
-        .mode-checkbox label {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            cursor: pointer;
-        }
-        .mode-checkbox input[type="checkbox"] {
-            cursor: pointer;
         }
         .button-group {
             display: flex;
@@ -68,82 +51,101 @@
             gap: 0.5rem;
             cursor: pointer;
         }
-        .mode-checkbox input[type="checkbox"] {
-            cursor: pointer;
+        .input-group {
+            margin-bottom: 1rem;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+        .loading {
+            display: none;
+            margin-top: 1rem;
+            text-align: center;
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 2s linear infinite;
+            margin: 0 auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .footer {
+            margin-top: 1rem;
+            text-align: right;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <p>Enter your questions in JSON format:</p>
-        <textarea id="jsonInput" placeholder='[
-  {
-    "questionText": "What is 2 + 2?",
-    "questionType": "MULTIPLE_CHOICE",
-    "options": ["3", "4", "5", "6"],
-    "correctAnswerIndex": 1,
-    "explanation": "2 + 2 equals 4 because it is basic arithmetic."
-  },
-  {
-    "questionText": "What is the capital of France?",
-    "questionType": "WRITTEN_ANSWER",
-    "correctWrittenAnswer": "Paris",
-    "explanation": "Paris is the capital and most populous city of France."
-  }
-]'></textarea>
-
+        
+        <div class="input-group">
+            <label for="promptInput">What would you like a quiz on?</label>
+            <textarea id="promptInput" placeholder="Enter your prompt here. Examples:
+1. Create a quiz about JavaScript fundamentals
+2. Convert this text into quiz questions: [paste your text here]
+3. Generate a 5-question quiz on machine learning basics"></textarea>
+        </div>
+        
+        <div class="input-group">
+            <label for="questionsAmount">Number of questions:</label>
+            <input type="number" id="questionsAmount" min="1" max="20" placeholder="10">
+        </div>
+        
         <div class="button-group">
-            <button onclick="submitQuiz()">Create Quiz</button>
-            <label class="mode-checkbox">
-                <input type="checkbox" id="learnMode" checked>
-                Learn Mode
-            </label>
+            <button onclick="generateQuiz()">Generate Quiz</button>
         </div>
-
-        <div class="example">
-            <h3>Example Format:</h3>
-            <pre>[
-  {
-    "questionText": "What is 2 + 2?",
-    "questionType": "MULTIPLE_CHOICE",
-    "options": ["3", "4", "5", "6"],
-    "correctAnswerIndex": 1,
-    "explanation": "2 + 2 equals 4 because it's basic arithmetic."
-  },
-  {
-    "questionText": "What is the capital of France?",
-    "questionType": "WRITTEN_ANSWER",
-    "correctWrittenAnswer": "Paris",
-    "explanation": "Paris is the capital and most populous city of France."
-  }
-]</pre>
+        
+        <div id="loading" class="loading">
+            <p>Generating your quiz with AI...</p>
+            <div class="spinner"></div>
         </div>
+        
     </div>
 
     <script>
-        function submitQuiz() {
-            const jsonInput = document.getElementById('jsonInput').value;
-            const mode = document.getElementById('learnMode').checked ? 'learn' : 'test';
-
-            try {
-                const questions = JSON.parse(jsonInput);
-                fetch(`/submit?mode=${mode}`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(questions)
-                })
-                .then(response => {
-                    if (response.ok) {
-                        window.location.href = `/quiz?mode=${mode}`;
-                    } else {
-                        alert('Error submitting quiz');
-                    }
-                });
-            } catch (e) {
-                alert('Invalid JSON format!');
+        function generateQuiz() {
+            const promptInput = document.getElementById('promptInput').value.trim();
+            const questionsAmount = document.getElementById('questionsAmount').value.trim() || "10";
+            
+            if (!promptInput) {
+                alert('Please enter a prompt');
+                return;
             }
+            
+            document.getElementById('loading').style.display = 'block';
+            
+            fetch('/api/quiz/generate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    prompt: promptInput,
+                    questionsAmount: questionsAmount
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to generate quiz');
+                }
+                return response.json();
+            })
+            .then(questions => {
+                localStorage.setItem('quizQuestions', JSON.stringify(questions))
+                window.location.href = `/quiz`;
+            })
+            .catch(error => {
+                alert('Error: ' + error.message);
+                document.getElementById('loading').style.display = 'none';
+            });
         }
     </script>
 </body>
