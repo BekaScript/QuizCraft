@@ -24,7 +24,7 @@ public class AuthController{
 
     @GetMapping("/register")
     public String showRegistrationForm(HttpSession session){
-        if (session.getAttribute("loggedInUser") != null) return "redirect:/";
+        if (session.getAttribute("username") != null) return "redirect:/";
         return "register";
     }    
 
@@ -48,7 +48,7 @@ public class AuthController{
 
     @GetMapping("/login")
     public String showLoginForm(HttpSession session){
-        if (session.getAttribute("loggedInUser") != null) return "redirect:/";
+        if (session.getAttribute("username") != null) return "redirect:/";
         return "login";
     }
 
@@ -62,7 +62,7 @@ public class AuthController{
         Optional<User> userOptional = userService.loginUser(username.trim(), password);
         if(userOptional.isPresent()){
             User user = userOptional.get();
-            session.setAttribute("loggedInUser", user.getUsername());
+            session.setAttribute("username", user.getUsername());
             session.setAttribute("userId", user.getId());
             return "redirect:/";
         } else{

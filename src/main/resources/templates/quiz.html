@@ -13,26 +13,26 @@
                 <span id="current-question">?</span>/<span id="total-questions">?</span>
             </div>
 
-            <div class="question">
-                <h2 id="question-text">Loading...</h2>
-                
-                <div id="answer-area">
-                </div>
-
-                <div id="explanationArea" class="explanation" style="display: none"></div>
-            </div>        
+            <h2 id="question-text">Loading...</h2>
             
-            <div class="modal" id="resultModal">
-                <div class="modal-content">
-                    <h2>Quiz Results</h2>
-                    <div id="resultContent"></div>
-                    <button onclick="closeResultModal()">Close</button>
-                </div>
-            </div>
+            <div id="answer-area"></div>
+
+            <div id="explanationArea" class="explanation" style="display: none"></div>
             
             <div class="navigation">
                 <button id="quitButton" onclick="quit()">Quit</button>
                 <button id="nextButton" onclick="nextQuestion()" disabled>Next</button>
+            </div>
+        </div>
+
+        <div class="modal" id="resultModal">
+            <div class="modal-content">
+                <p><strong>Quiz Complete!</strong></p>
+                <div style="margin-top: 1rem;">
+                    <button onclick="saveQuiz()" style="background-color: #28a745; color: white; padding: 10px 20px; border: none; border-radius: 4px; margin-right: 10px; cursor: pointer;">Save Quiz</button>
+                    <button onclick="retakeQuiz()" style="background-color: #4a90e2; color: white; padding: 10px 20px; border: none; border-radius: 4px; margin-right: 10px; cursor: pointer;">Retake Quiz</button>
+                    <button onclick="goHome()" style="background-color: #6c757d; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer;">Go Home</button>
+                </div>
             </div>
         </div>
 

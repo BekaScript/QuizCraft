@@ -4,11 +4,13 @@ let totalQuestions = 0;
 let answeredQuestions = 0;
 let currentQuestion = null;
 let isAnswered = false;
+let quizTitle = '';
+let currentQuizId = null;
 
 document.addEventListener('DOMContentLoaded', initializeQuiz);
 
 function initializeQuiz() {
-    const questionsJson = localStorage.getItem('quizQuestions');
+    const questionsJson = localStorage.getItem('questions');
     if (!questionsJson) {
         alert('No quiz questions found. Please return to the home page and create a quiz.');
         window.location.href = '/';
@@ -17,6 +19,9 @@ function initializeQuiz() {
     
     questions = JSON.parse(questionsJson);
     totalQuestions = questions.length;
+    quizTitle = localStorage.getItem('quizTitle') || 'Generated Quiz';
+    currentQuizId = localStorage.getItem('currentQuizId') || null;
+    
     document.getElementById('total-questions').textContent = totalQuestions;
     
     showNextQuestion();
@@ -26,6 +31,7 @@ function showNextQuestion() {
     // If we're out of questions in the main queue, check incorrect questions
     if (questions.length === 0) {
         if (IAQs.length === 0) {
+            showQuizResults();
             return;
         }
         
@@ -114,7 +120,8 @@ function selectOption(element) {
         // Save incorrect question for review
         IAQs.push(currentQuestion);
     }
-    document.getElementById('nextButton').disabled = false || (questions.length === 0 && IAQs.length ===0);
+    
+    updateNextButton();
 
     if(document.getElementById('explanationArea').textContent.trim() !== '') {
         document.getElementById('explanationArea').style.display = 'block';
@@ -140,10 +147,21 @@ function submitWrittenAnswer(){
     
     textarea.disabled = true;
     isAnswered = true;
-    document.getElementById('nextButton').disabled = false || (questions.length === 0 && IAQs.length ===0);
+    updateNextButton();
 
     if(document.getElementById('explanationArea').textContent.trim() !== '') {
         document.getElementById('explanationArea').style.display = 'block';
+    }
+}
+
+function updateNextButton() {
+    const nextButton = document.getElementById('nextButton');
+    if (questions.length === 0 && IAQs.length === 0) {
+        nextButton.textContent = 'Finish Quiz';
+        nextButton.disabled = false;
+    } else {
+        nextButton.textContent = 'Next';
+        nextButton.disabled = false;
     }
 }
 
@@ -153,6 +171,79 @@ function nextQuestion() {
     }
 }
 
-function quit() {
+function showQuizResults() {
+    document.getElementById('resultModal').style.display = 'block';
+}
+
+function saveQuiz() {
+    const title = prompt('Enter a title for this quiz:', quizTitle);
+    if (!title) return;
+    
+    const description = prompt('Enter a description (optional):', '') || '';
+    
+    // Get original questions from localStorage
+    const originalQuestions = JSON.parse(localStorage.getItem('questions'));
+    
+    const quizData = {
+        title: title,
+        description: description,
+        questions: originalQuestions
+    };
+    
+    fetch('/api/saved-quiz/save', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(quizData)
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Failed to save quiz');
+        }
+        return response.json();
+    })
+    .then(result => {
+        currentQuizId = result.id;
+        localStorage.setItem('currentQuizId', currentQuizId);
+    })
+    .catch(error => {
+        alert('Error saving quiz: ' + error.message);
+    });
+}
+
+function retakeQuiz() {
+    // Reset quiz state
+    const originalQuestions = JSON.parse(localStorage.getItem('questions'));
+    questions = [...originalQuestions];
+    IAQs = [];
+    answeredQuestions = 0;
+    currentQuestion = null;
+    isAnswered = false;
+    
+    // Hide result modal
+    document.getElementById('resultModal').style.display = 'none';
+    
+    // Reset next button
+    const nextButton = document.getElementById('nextButton');
+    nextButton.textContent = 'Next';
+    nextButton.disabled = true;
+    
+    // Start quiz again
+    showNextQuestion();
+}
+
+function goHome() {
     window.location.href = '/';
+}
+
+function closeResultModal() {
+    document.getElementById('resultModal').style.display = 'none';
+    goHome();
+}
+
+function quit() {
+    if (confirm('Are you sure you want to quit the quiz? Your progress will be lost.')) {
+        window.location.href = '/';
+    }
 }

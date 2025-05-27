@@ -36,4 +36,7 @@ public class Question {
     private String correctWrittenAnswer;
 
     private String explanation;
+    
+    @Column(name = "quiz_id")
+    private Long quizId;
 }

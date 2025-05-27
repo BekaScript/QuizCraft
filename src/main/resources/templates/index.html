@@ -101,6 +101,9 @@
         
         <div class="button-group">
             <button onclick="generateQuiz()">Generate Quiz</button>
+            <a href="/my-quizzes" style="text-decoration: none;">
+                <button type="button" style="background-color: #28a745;">My Saved Quizzes</button>
+            </a>
         </div>
         
         <div id="loading" class="loading">
@@ -139,7 +142,7 @@
                 return response.json();
             })
             .then(questions => {
-                localStorage.setItem('quizQuestions', JSON.stringify(questions))
+                localStorage.setItem('questions', JSON.stringify(questions))
                 window.location.href = `/quiz`;
             })
             .catch(error => {

@@ -9,7 +9,7 @@ import jakarta.servlet.http.HttpSession;
 public class HomeController{
     @GetMapping("/")
     public String index(HttpSession session){
-        if (session.getAttribute("loggedInUser") == null) return "redirect:/login";
+        if (session.getAttribute("username") == null) return "redirect:/login";
         return "index";
     }
 
@@ -23,4 +23,14 @@ public class HomeController{
         return "quiz";
     }
     
+    @GetMapping("/my-quizzes")
+    public String showMyQuizzesPage(HttpSession session) {
+        if (session.getAttribute("username") == null) return "redirect:/login";
+        return "my-quizzes";
+    }
+    
+    @GetMapping("/quiz/{id}")
+    public String showSavedQuizPage() {
+        return "quiz";
+    }
 }
