@@ -1,135 +1,283 @@
+/* Reset and Base Styles */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
 body {
-    font-family: Arial, sans-serif;
-    max-width: 800px;
-    margin: 0 auto;
+    font-family: 'Poppins', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #333;
     padding: 20px;
-    background-color: #f0f2f5;
+    line-height: 1.6;
 }
+
 .container {
-    background-color: white;
-    padding: 2rem;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    background-color: #ffffff;
+    padding: 2.5rem 3rem;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    width: 100%;
+    max-width: 700px;
+    text-align: center;
 }
-.question {
+
+/* Progress Bar */
+.progress {
     margin-bottom: 2rem;
+    font-size: 1rem;
+    font-weight: 500;
+    color: #555;
 }
+
+.progress #current-question, .progress #total-questions {
+    font-weight: 700;
+    color: #007bff; /* Primary color for emphasis */
+}
+
+/* Question Text */
+#question-text {
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: #343a40;
+    margin-bottom: 2.5rem;
+    min-height: 60px; /* Ensure space even when loading */
+}
+
+/* Answer Area - General */
+#answer-area {
+    margin-bottom: 2.5rem;
+}
+
+/* Multiple Choice Options */
 .options {
     list-style-type: none;
     padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
 }
+
 .option {
-    padding: 10px;
-    margin: 5px 0;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-.option:hover {
-    background-color: #f0f0f0;
-}
-
-.navigation {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 2rem;
-}
-button {
-    background-color: #4a90e2;
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-}
-button:hover {
-    background-color: #357abd;
-}
-button:disabled {
-    background-color: #cccccc;
-    cursor: not-allowed;
-}
-.progress {
-    margin-top: 1rem;
-    text-align: center;
-    font-size: 1.2rem;
-}
-
-/* Modal styles */
-.modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    z-index: 1000;
-}
-
-.modal-content {
-    background-color: white;
-    margin: 15% auto;
-    padding: 20px;
-    border-radius: 8px;
-    width: 80%;
-    max-width: 500px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    position: relative;
-}
-
-/* Animation for modal */
-@keyframes modalFadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(-20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.modal.show {
-    display: block;
-    animation: modalFadeIn 0.3s ease-out;
-}
-
-/* Style the result content */
-#resultContent {
-    margin: 20px 0;
-    padding: 15px;
     background-color: #f8f9fa;
-    border-radius: 4px;
-}
-
-/* Style the close button */
-.modal-content button {
-    background-color: #4a90e2;
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 4px;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
     cursor: pointer;
-    margin-top: 15px;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    text-align: left;
 }
 
-.modal-content button:hover {
-    background-color: #357abd;
+.option:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    border-color: #007bff;
 }
 
 .option.selected {
-    background-color: #4a90e2 !important;
+    background-color: #007bff;
     color: white;
+    border-color: #0056b3;
 }
 
 .option.correct {
-    background-color: #28a745 !important;
+    background-color: #28a745;
     color: white;
+    border-color: #1e7e34;
 }
 
 .option.incorrect {
-    background-color: #dc3545 !important;
+    background-color: #dc3545;
     color: white;
+    border-color: #b02a37;
+}
+
+/* Written Answer */
+.written-answer-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+}
+
+.written-answer-input {
+    width: 100%;
+    padding: 1rem;
+    border: 2px solid #ced4da;
+    border-radius: 10px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+}
+
+.written-answer-input:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+.written-answer-input.correct-answer { /* Style for after submission */
+    border-color: #28a745;
+    background-color: #e9f5e9;
+}
+.written-answer-input.incorrect-answer {
+    border-color: #dc3545;
+    background-color: #fdecea;
+}
+
+
+/* Explanation Area */
+.explanation {
+    background-color: #e9ecef;
+    padding: 1rem 1.5rem;
+    border-radius: 10px;
+    margin-top: 1.5rem;
+    color: #495057;
+    font-size: 0.95rem;
+    text-align: left;
+    border-left: 5px solid #007bff;
+}
+
+/* Navigation Buttons */
+.navigation {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 2.5rem;
+    gap: 1rem;
+}
+
+button, .navigation button /* Ensure specificity */ {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+#nextButton {
+    background-color: #007bff; /* Primary */
+    color: white;
+}
+#nextButton:hover {
+    background-color: #0056b3;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
+}
+
+#quitButton {
+    background-color: #6c757d; /* Secondary/Grey */
+    color: white;
+}
+#quitButton:hover {
+    background-color: #545b62;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(108, 117, 125, 0.3);
+}
+
+button:disabled, .navigation button:disabled {
+    background-color: #ced4da;
+    color: #6c757d;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Modal Styles */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(5px);
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    background-color: #ffffff;
+    margin: auto;
+    padding: 2.5rem;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    width: 90%;
+    max-width: 500px;
+    text-align: center;
+    animation: modalFadeIn 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
+
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-30px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.modal-content p strong {
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: #343a40;
+    display: block;
+    margin-bottom: 1.5rem;
+}
+
+.modal-content div[style*="margin-top: 1rem"] { /* Targeting the button container */
+    display: flex;
+    flex-direction: column; /* Stack buttons vertically */
+    gap: 0.75rem; /* Add space between buttons */
+    margin-top: 1.5rem !important; /* Override inline style if necessary */
+}
+
+.modal-content button { /* General button styling within modal */
+    width: 100%; /* Make buttons full width */
+    padding: 0.8rem 1rem;
+    font-size: 0.95rem;
+    font-weight: 500;
+    /* Specific button colors are inline, keep or override here */
+}
+
+/* Example: Override specific modal button colors if needed */
+#saveQuizButtonModal { background-color: #28a745; }
+#saveQuizButtonModal:hover { background-color: #1e7e34; }
+
+#retakeQuizButtonModal { background-color: #007bff; }
+#retakeQuizButtonModal:hover { background-color: #0056b3; }
+
+#goHomeButtonModal { background-color: #6c757d; }
+#goHomeButtonModal:hover { background-color: #545b62; }
+
+
+/* Utility class for when a written answer is submitted and it's correct/incorrect */
+/* This should be applied via JS to the textarea after submission to keep border color until next question */
+textarea#writtenAnswerInput.submitted.correct {
+    border-color: #28a745 !important; /* Green */
+    background-color: #f0fff0; /* Light green background */
+}
+
+textarea#writtenAnswerInput.submitted.incorrect {
+    border-color: #dc3545 !important; /* Red */
+    background-color: #fff0f0; /* Light red background */
+}
+
+textarea#writtenAnswerInput:disabled {
+    background-color: #e9ecef; /* Slightly different background when disabled */
+    color: #495057;
 }

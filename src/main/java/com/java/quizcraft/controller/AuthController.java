@@ -73,8 +73,10 @@ public class AuthController{
     }
 
     @GetMapping("/logout")
-    public String logout(HttpSession session){
-        if (session!=null) session.invalidate();
-        return "redirect:/login?logout";
+    public String logout(HttpSession session, RedirectAttributes redirectAttributes){
+        if (session!=null) {
+            session.invalidate();
+        }
+        return "redirect:/";
     }
 }

@@ -6,10 +6,13 @@ let currentQuestion = null;
 let isAnswered = false;
 let quizTitle = '';
 let currentQuizId = null;
-
+let isRetakeMode = false; 
 document.addEventListener('DOMContentLoaded', initializeQuiz);
 
 function initializeQuiz() {
+    
+    isRetakeMode = /^\/quiz\/\d+$/.test(window.location.pathname);
+
     const questionsJson = localStorage.getItem('questions');
     if (!questionsJson) {
         alert('No quiz questions found. Please return to the home page and create a quiz.');
@@ -28,7 +31,6 @@ function initializeQuiz() {
 }
 
 function showNextQuestion() {
-    // If we're out of questions in the main queue, check incorrect questions
     if (questions.length === 0) {
         if (IAQs.length === 0) {
             showQuizResults();
@@ -37,7 +39,6 @@ function showNextQuestion() {
         
         currentQuestion = IAQs.shift();
     } else {
-        // Get next question from main queue
         currentQuestion = questions.shift();
     }
     
@@ -117,7 +118,6 @@ function selectOption(element) {
         element.classList.add('incorrect');
         options[correctAnswerIndex].classList.add('correct');
         
-        // Save incorrect question for review
         IAQs.push(currentQuestion);
     }
     
@@ -136,12 +136,15 @@ function submitWrittenAnswer(){
     
     const correctAnswer = currentQuestion.correctWrittenAnswer;
     
+    textarea.classList.add('submitted');
+
     if(userAnswer.localeCompare(correctAnswer, undefined, {sensitivity: 'accent'}) === 0){
-        textarea.style.borderColor = '#28a745'; //green
+        textarea.classList.add('correct');
+        textarea.classList.remove('incorrect');
     } else {
-        textarea.style.borderColor = '#dc3646'; //red
+        textarea.classList.add('incorrect');
+        textarea.classList.remove('correct');
         
-        // Save incorrect question for review
         IAQs.push(currentQuestion);
     }
     
@@ -173,6 +176,27 @@ function nextQuestion() {
 
 function showQuizResults() {
     document.getElementById('resultModal').style.display = 'block';
+
+    const saveButton = document.getElementById('saveQuizButton');
+    const goHomeButton = document.getElementById('goHomeButton');
+
+    if (isRetakeMode) {
+        if (saveButton) {
+            saveButton.style.display = 'none';
+        }
+        if (goHomeButton) {
+            goHomeButton.textContent = 'Back to My Quizzes';
+            goHomeButton.onclick = goToMyQuizzes;
+        }
+    } else {
+        if (saveButton) {
+            saveButton.style.display = 'inline-block'; 
+        }
+        if (goHomeButton) {
+            goHomeButton.textContent = 'Go Home';
+            goHomeButton.onclick = goHome;
+        }
+    }
 }
 
 function saveQuiz() {
@@ -181,7 +205,7 @@ function saveQuiz() {
     
     const description = prompt('Enter a description (optional):', '') || '';
     
-    // Get original questions from localStorage
+
     const originalQuestions = JSON.parse(localStorage.getItem('questions'));
     
     const quizData = {
@@ -213,7 +237,6 @@ function saveQuiz() {
 }
 
 function retakeQuiz() {
-    // Reset quiz state
     const originalQuestions = JSON.parse(localStorage.getItem('questions'));
     questions = [...originalQuestions];
     IAQs = [];
@@ -221,15 +244,12 @@ function retakeQuiz() {
     currentQuestion = null;
     isAnswered = false;
     
-    // Hide result modal
     document.getElementById('resultModal').style.display = 'none';
     
-    // Reset next button
     const nextButton = document.getElementById('nextButton');
     nextButton.textContent = 'Next';
     nextButton.disabled = true;
     
-    // Start quiz again
     showNextQuestion();
 }
 
@@ -237,13 +257,26 @@ function goHome() {
     window.location.href = '/';
 }
 
+function goToMyQuizzes() { 
+    window.location.href = '/my-quizzes';
+}
+
 function closeResultModal() {
     document.getElementById('resultModal').style.display = 'none';
-    goHome();
+    if (isRetakeMode) {
+        goToMyQuizzes();
+    } else {
+        goHome();
+    }
 }
 
 function quit() {
-    if (confirm('Are you sure you want to quit the quiz? Your progress will be lost.')) {
-        window.location.href = '/';
+    const confirmMessage = 'Are you sure you want to quit the quiz? Your progress will be lost.';
+    if (confirm(confirmMessage)) {
+        if (isRetakeMode) {
+            window.location.href = '/my-quizzes';
+        } else {
+            window.location.href = '/';
+        }
     }
 }

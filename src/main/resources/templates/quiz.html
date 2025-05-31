@@ -4,6 +4,9 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Quiz</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
         <link rel="stylesheet" href="/css/quiz.css">
     </head>
 
@@ -29,9 +32,9 @@
             <div class="modal-content">
                 <p><strong>Quiz Complete!</strong></p>
                 <div style="margin-top: 1rem;">
-                    <button onclick="saveQuiz()" style="background-color: #28a745; color: white; padding: 10px 20px; border: none; border-radius: 4px; margin-right: 10px; cursor: pointer;">Save Quiz</button>
-                    <button onclick="retakeQuiz()" style="background-color: #4a90e2; color: white; padding: 10px 20px; border: none; border-radius: 4px; margin-right: 10px; cursor: pointer;">Retake Quiz</button>
-                    <button onclick="goHome()" style="background-color: #6c757d; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer;">Go Home</button>
+                    <button id="saveQuizButton" onclick="saveQuiz()" style="background-color: #28a745; color: white; padding: 10px 20px; border: none; border-radius: 4px; margin-right: 10px; cursor: pointer;">Save Quiz</button>
+                    <button id="retakeQuizButton" onclick="retakeQuiz()" style="background-color: #4a90e2; color: white; padding: 10px 20px; border: none; border-radius: 4px; margin-right: 10px; cursor: pointer;">Retake Quiz</button>
+                    <button id="goHomeButton" onclick="goHome()" style="background-color: #6c757d; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer;">Go Home</button>
                 </div>
             </div>
         </div>

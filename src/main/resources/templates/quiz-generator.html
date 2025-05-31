@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuizCraft - Create Quiz</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/common-styles.css">
+    <style>
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            width: 100%;
+        }
+        .top-bar .btn {
+            margin: 0 5px;
+        }
+        .top-bar-left {
+            display: flex;
+            gap: 10px;
+        }
+        .top-bar-right {
+            display: flex;
+            gap: 10px;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .page-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            color: #007bff;
+        }
+        .page-header p {
+            font-size: 1.1rem;
+            color: #6c757d;
+        }
+
+        .quiz-form {
+            background-color: #fff;
+            padding: 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            margin-bottom: 2rem;
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #333;
+        }
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            font-family: 'Poppins', sans-serif;
+        }
+        .form-group input[type="number"] {
+            -moz-appearance: textfield;
+        }
+        .form-group input[type="number"]::-webkit-outer-spin-button,
+        .form-group input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        .form-group input:disabled {
+            background-color: #f8f9fa;
+            color: #6c757d;
+            cursor: not-allowed;
+        }
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .generate-btn {
+            width: 100%;
+            padding: 1rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-top: 1rem;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 2rem 0;
+        }
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #007bff;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .quiz-result {
+            display: none;
+            background-color: #fff;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            margin-bottom: 2rem;
+        }
+        .quiz-result h2 {
+            color: #007bff;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        .question {
+            background-color: #f8f9fa;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-radius: 8px;
+            border-left: 4px solid #007bff;
+        }
+        .question h3 {
+            margin-bottom: 1rem;
+            color: #333;
+        }
+        .question-type-badge {
+            font-size: 0.75rem;
+            background-color: #e9ecef;
+            color: #495057;
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-weight: 500;
+            margin-left: 0.5rem;
+        }
+        .question-type-badge.multiple-choice {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+        .question-type-badge.written-answer {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .options {
+            list-style: none;
+            padding: 0;
+        }
+        .options li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #eee;
+        }
+        .options li:last-child {
+            border-bottom: none;
+        }
+        .correct-answer {
+            background-color: #d4edda;
+            color: #155724;
+            font-weight: 500;
+            padding: 0.5rem;
+            border-radius: 4px;
+            margin-top: 1rem;
+        }
+
+        .quiz-actions {
+            display: none;
+            text-align: center;
+            margin-top: 2rem;
+            gap: 1rem;
+        }
+        .quiz-actions.show {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .quiz-actions .btn {
+            margin: 0.5rem;
+            min-width: 150px;
+        }
+
+        .error-message {
+            display: none;
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 1rem;
+            border-radius: 5px;
+            margin: 1rem 0;
+            border: 1px solid #f5c6cb;
+        }
+
+        /* Tab styles */
+        .quiz-tabs {
+            display: flex;
+            margin-bottom: 0;
+            border-bottom: 2px solid #f1f3f4;
+            background-color: #fff;
+            border-radius: 10px 10px 0 0;
+        }
+        .quiz-tab {
+            flex: 1;
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            border: none;
+            background-color: transparent;
+            font-size: 1rem;
+            font-weight: 500;
+            color: #6c757d;
+            transition: all 0.3s ease;
+            border-radius: 10px 10px 0 0;
+        }
+        .quiz-tab:hover {
+            color: #007bff;
+            background-color: #f8f9fa;
+        }
+        .quiz-tab.active {
+            color: #007bff;
+            background-color: #fff;
+            border-bottom: 2px solid #007bff;
+            font-weight: 600;
+        }
+        .quiz-tab-content {
+            display: none;
+            padding: 2rem;
+        }
+        .quiz-tab-content.active {
+            display: block;
+        }
+
+        /* Mode-specific styles */
+        .text-input-large {
+            min-height: 200px;
+            font-family: monospace;
+        }
+        .quiz-input-large {
+            min-height: 400px;
+            font-family: monospace;
+        }
+        .ai-decide-option {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        .ai-decide-option input[type="checkbox"] {
+            width: auto;
+            margin: 0;
+        }
+        .ai-decide-option label {
+            margin: 0;
+            font-weight: normal;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <!-- Check if user is authenticated, redirect if not -->
+    <div th:unless="${isAuthenticated}" style="display: none;">
+        <script>
+            window.location.href = '/';
+        </script>
+    </div>
+
+    <div class="container" th:if="${isAuthenticated}">
+        <div class="top-bar">
+            <div class="top-bar-left">
+                <a th:href="@{/}" class="btn btn-secondary">Back to Home</a>
+            </div>
+        </div>
+
+        <div class="page-header">
+            <h1>Create New Quiz</h1>
+            <p>Generate an AI-powered quiz in three different ways</p>
+        </div>
+
+        <div class="quiz-form">
+            <!-- Tab Navigation -->
+            <div class="quiz-tabs">
+                <button class="quiz-tab active" data-tab="topic">From Topic</button>
+                <button class="quiz-tab" data-tab="text">From Text</button>
+                <button class="quiz-tab" data-tab="convert">Convert Quiz</button>
+            </div>
+
+            <!-- Topic Mode -->
+            <div class="quiz-tab-content active" id="topic-content">
+                <form id="topicForm">
+                    <div class="form-group">
+                        <label for="topicInput">Quiz Topic</label>
+                        <input type="text" id="topicInput" name="topic" required 
+                               placeholder="e.g., World War II, Photosynthesis, Machine Learning">
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="topicNumberOfQuestions">Number of Questions</label>
+                            <input type="number" id="topicNumberOfQuestions" name="numberOfQuestions" min="1" max="20" value="3" required
+                                   placeholder="Enter number of questions (1-20)">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="topicQuizType">Quiz Type</label>
+                            <select id="topicQuizType" name="quizType" required>
+                                <option value="MIXED" selected>Mixed</option>
+                                <option value="MULTIPLE_CHOICE">Multiple Choice Only</option>
+                                <option value="WRITTEN_ANSWER">Written Answer Only</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary generate-btn">Generate Quiz</button>
+                </form>
+            </div>
+
+            <!-- Text Mode -->
+            <div class="quiz-tab-content" id="text-content">
+                <form id="textForm">
+                    <div class="form-group">
+                        <label for="textInput">Text to Base Quiz On</label>
+                        <textarea id="textInput" name="text" class="text-input-large" required 
+                                  placeholder="Paste or type the text content you want to create a quiz from..."></textarea>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="NOQ">Number of Questions</label>
+                            <input type="number" id="NOQ" name="numberOfQuestions" min="1" max="20" 
+                                   placeholder="AI will decide automatically" disabled>
+                            <div class="ai-decide-option">
+                                <input type="checkbox" id="aiDecideNOQ" name="aiDecide" checked>
+                                <label for="aiDecideNOQ">Let AI decide the number of questions</label>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="textQuizType">Quiz Type</label>
+                            <select id="textQuizType" name="quizType" required>
+                                <option value="MIXED" selected>Mixed</option>
+                                <option value="MULTIPLE_CHOICE">Multiple Choice Only</option>
+                                <option value="WRITTEN_ANSWER">Written Answer Only</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary generate-btn">Generate Quiz</button>
+                </form>
+            </div>
+
+            <!-- Quiz Conversion Mode -->
+            <div class="quiz-tab-content" id="convert-content">
+                <form id="convertForm">
+                    <div class="form-group">
+                        <label for="quizInput">Existing Quiz Text</label>
+                        <textarea id="quizInput" name="quizText" class="quiz-input-large" required 
+                                  placeholder="Paste your existing quiz text here. The AI will convert it to our JSON format...
+
+Example format:
+1. What is the capital of France?
+a) London
+b) Paris
+c) Berlin
+d) Madrid
+answer: b
+
+2. What is the closest planet to Sun?
+answer: Mercury
+
+3. Who wrote Romeo and Juliet?
+..."></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary generate-btn">Generate Quiz</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="error-message" id="errorMessage"></div>
+
+        <div class="loading" id="loading">
+            <div class="loading-spinner"></div>
+            <p>Generating your quiz... This may take a few moments.</p>
+        </div>
+
+        <button id="generateNewBtn" class="btn btn-secondary" style="display: none;">Generate New Quiz</button>
+    </div>
+
+    <script src="/js/quiz-generator.js"></script>
+</body>
+</html> 

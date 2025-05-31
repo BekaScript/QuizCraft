@@ -122,20 +122,8 @@
 
             try {
                 const questions = JSON.parse(jsonInput);
-                fetch('/submit', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(questions)
-                })
-                .then(response => {
-                    if (response.ok) {
-                        window.location.href = '/quiz';
-                    } else {
-                        alert('Error submitting quiz');
-                    }
-                });
+                localStorage.setItem('questions', JSON.stringify(questions))
+                window.location.href = `/quiz`;
             } catch (e) {
                 alert('Invalid JSON format!');
             }

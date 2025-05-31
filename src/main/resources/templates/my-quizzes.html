@@ -3,111 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Saved Quizzes</title>
+    <title>My Saved Quizzes - QuizCraft</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/common-styles.css">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f0f2f5;
-        }
+        /* Page-specific styles for my-quizzes.html */
         .container {
-            background-color: white;
-            padding: 2rem;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            max-width: 900px; /* Wider container for quiz list */
         }
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 2rem;
-            border-bottom: 2px solid #f0f2f5;
+            margin-bottom: 2.5rem;
             padding-bottom: 1rem;
+            border-bottom: 2px solid #e9ecef;
+        }
+        .header h1 {
+            margin-bottom: 0; /* Remove default margin from h1 inside header */
+        }
+
+        #quizzes-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
         }
         .quiz-card {
-            border: 1px solid #ddd;
-            border-radius: 8px;
+            background-color: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
             padding: 1.5rem;
-            margin-bottom: 1rem;
-            background-color: #fafafa;
-            transition: box-shadow 0.3s ease;
+            transition: box-shadow 0.3s ease, transform 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
         .quiz-card:hover {
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
         }
         .quiz-title {
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: #333;
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #343a40;
             margin-bottom: 0.5rem;
         }
         .quiz-description {
-            color: #666;
+            font-size: 0.95rem;
+            color: #6c757d;
             margin-bottom: 1rem;
-            line-height: 1.4;
+            line-height: 1.5;
+            flex-grow: 1; /* Allows description to take available space */
         }
         .quiz-meta {
+            font-size: 0.85rem;
+            color: #888;
+            margin-bottom: 1.25rem;
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            font-size: 0.9rem;
-            color: #888;
-            margin-bottom: 1rem;
+            border-top: 1px dashed #eee;
+            padding-top: 0.75rem;
+            margin-top: 0.75rem;
         }
         .quiz-actions {
             display: flex;
-            gap: 0.5rem;
+            gap: 0.75rem; 
+            justify-content: flex-end; /* Align buttons to the right of the card */
         }
-        .btn {
-            padding: 8px 16px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 0.9rem;
-            transition: background-color 0.3s ease;
+        .quiz-actions .btn {
+            font-size: 0.85rem; /* Slightly smaller buttons for cards */
+            padding: 0.5rem 1rem;
         }
-        .btn-primary {
-            background-color: #4a90e2;
-            color: white;
-        }
-        .btn-primary:hover {
-            background-color: #357abd;
-        }
-        .btn-danger {
-            background-color: #dc3545;
-            color: white;
-        }
-        .btn-danger:hover {
-            background-color: #c82333;
-        }
-        .btn-secondary {
-            background-color: #6c757d;
-            color: white;
-        }
-        .btn-secondary:hover {
-            background-color: #545b62;
-        }
-        .loading {
-            text-align: center;
-            padding: 2rem;
-            color: #666;
-        }
+
         .empty-state {
             text-align: center;
             padding: 3rem;
-            color: #666;
+            background-color: #f8f9fa;
+            border-radius: 10px;
         }
         .empty-state h3 {
             margin-bottom: 1rem;
         }
-        .attempts-info {
-            font-size: 0.8rem;
-            color: #28a745;
-            margin-top: 0.5rem;
+        
+        /* Loading placeholder specific to this page */
+        #loading {
+            /* Using .loading-placeholder from common-styles.css for the animation and basic text style */
+            /* but specific display and message can be controlled by the existing JS and this ID */
+            padding: 2rem;
+            text-align: center;            
         }
     </style>
 </head>
@@ -115,21 +100,21 @@
     <div class="container">
         <div class="header">
             <h1>My Saved Quizzes</h1>
-            <a href="/" class="btn btn-secondary">← Back to Home</a>
+            <a href="/" class="btn btn-secondary">Back to Home</a> 
         </div>
         
-        <div id="loading" class="loading">
+        <div id="loading" class="loading-placeholder">
             <p>Loading your quizzes...</p>
         </div>
         
         <div id="quizzes-container" style="display: none;">
-            <!-- Quizzes will be loaded here -->
+            <!-- Quizzes will be loaded here by JavaScript -->
         </div>
         
         <div id="empty-state" class="empty-state" style="display: none;">
-            <h3>No saved quizzes yet</h3>
-            <p>Create your first quiz to see it here!</p>
-            <a href="/" class="btn btn-primary">Create New Quiz</a>
+            <h3>No Saved Quizzes Yet</h3>
+            <p>Looks like you haven't saved any quizzes. Go ahead and create one!</p>
+            <a href="/" class="btn btn-primary" style="margin-top: 1rem;">Create New Quiz</a>
         </div>
     </div>
 
@@ -142,7 +127,11 @@
             fetch('/api/saved-quiz/my-quizzes')
                 .then(response => {
                     if (!response.ok) {
-                        throw new Error('Failed to load quizzes');
+                        if (response.status === 401) { // Handle unauthorized access
+                            window.location.href = '/login'; // Redirect to login
+                            throw new Error('User not authenticated. Redirecting to login.');
+                        }
+                        throw new Error('Failed to load quizzes. Server responded with ' + response.status);
                     }
                     return response.json();
                 })
@@ -151,38 +140,46 @@
                     
                     if (quizzes.length === 0) {
                         document.getElementById('empty-state').style.display = 'block';
+                        document.getElementById('quizzes-container').style.display = 'none';
                     } else {
                         displayQuizzes(quizzes);
-                        document.getElementById('quizzes-container').style.display = 'block';
+                        document.getElementById('quizzes-container').style.display = 'grid'; // Changed to grid
+                        document.getElementById('empty-state').style.display = 'none';
                     }
                 })
                 .catch(error => {
                     console.error('Error loading quizzes:', error);
-                    document.getElementById('loading').innerHTML = '<p style="color: red;">Error loading quizzes. Please try again.</p>';
+                    const loadingDiv = document.getElementById('loading');
+                    loadingDiv.innerHTML = `<p style="color: red;">Error loading quizzes: ${escapeHtml(error.message)}. Please try refreshing.</p>`;
+                    loadingDiv.style.display = 'block'; // Ensure it's visible
                 });
         }
 
         function displayQuizzes(quizzes) {
             const container = document.getElementById('quizzes-container');
-            container.innerHTML = '';
+            container.innerHTML = ''; // Clear previous content
 
             quizzes.forEach(quiz => {
                 const quizCard = document.createElement('div');
                 quizCard.className = 'quiz-card';
                 
-                const createdDate = new Date(quiz.createdAt).toLocaleDateString();
+                const createdDate = new Date(quiz.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
                 const questionCount = quiz.questions ? quiz.questions.length : 0;
                 
                 quizCard.innerHTML = `
-                    <div class="quiz-title">${escapeHtml(quiz.title)}</div>
-                    <div class="quiz-description">${escapeHtml(quiz.description || 'No description')}</div>
-                    <div class="quiz-meta">
-                        <span>${questionCount} questions</span>
-                        <span>Created: ${createdDate}</span>
+                    <div class="quiz-content">
+                        <div class="quiz-title">${escapeHtml(quiz.title)}</div>
+                        <div class="quiz-description">${escapeHtml(quiz.description || 'No description provided.')}</div>
                     </div>
-                    <div class="quiz-actions">
-                        <button class="btn btn-primary" onclick="retakeQuiz(${quiz.id})">Take Quiz</button>
-                        <button class="btn btn-danger" onclick="deleteQuiz(${quiz.id})">Delete</button>
+                    <div class="quiz-footer">
+                        <div class="quiz-meta">
+                            <span>${questionCount} question${questionCount !== 1 ? 's' : ''}</span>
+                            <span>Created: ${createdDate}</span>
+                        </div>
+                        <div class="quiz-actions">
+                            <button class="btn btn-primary" onclick="retakeQuiz(${quiz.id})">Take Quiz</button>
+                            <button class="btn btn-danger" onclick="deleteQuiz(${quiz.id})">Delete</button>
+                        </div>
                     </div>
                 `;
                 
@@ -191,22 +188,26 @@
         }
 
         function retakeQuiz(quizId) {
-            // Load the quiz and redirect to quiz page
             fetch(`/api/saved-quiz/${quizId}`)
                 .then(response => {
                     if (!response.ok) {
-                        throw new Error('Failed to load quiz');
+                         if (response.status === 401) { 
+                            alert('Session expired or not authenticated. Please login again.');
+                            window.location.href = '/login'; 
+                            throw new Error('User not authenticated.');
+                        }
+                        throw new Error('Failed to load quiz for retake. Server responded with ' + response.status);
                     }
                     return response.json();
                 })
                 .then(quiz => {
-                    // Store quiz data in localStorage for the quiz page
                     localStorage.setItem('questions', JSON.stringify(quiz.questions));
-                    localStorage.setItem('currentQuizId', quizId);
+                    localStorage.setItem('currentQuizId', quiz.id); // Use quiz.id from response
                     localStorage.setItem('quizTitle', quiz.title);
-                    window.location.href = `/quiz/${quizId}`;
+                    window.location.href = `/quiz/${quiz.id}`; // Use quiz.id in URL
                 })
                 .catch(error => {
+                    console.error('Error retaking quiz:', error);
                     alert('Error loading quiz: ' + error.message);
                 });
         }
@@ -218,23 +219,32 @@
                 })
                 .then(response => {
                     if (!response.ok) {
-                        throw new Error('Failed to delete quiz');
+                        if (response.status === 401) { 
+                             alert('Session expired or not authenticated. Please login again.');
+                             window.location.href = '/login';
+                             throw new Error('User not authenticated.');
+                        }
+                        return response.json().then(err => { 
+                            throw new Error(err.message || 'Failed to delete quiz. Server responded with ' + response.status);
+                        });
                     }
                     return response.json();
                 })
                 .then(result => {
-                    alert('Quiz deleted successfully');
-                    loadQuizzes(); // Reload the list
+                    alert(result.message || 'Quiz deleted successfully');
+                    loadQuizzes(); // Reload the list to reflect deletion
                 })
                 .catch(error => {
+                    console.error('Error deleting quiz:', error);
                     alert('Error deleting quiz: ' + error.message);
                 });
             }
         }
 
         function escapeHtml(text) {
+            if (text === null || typeof text === 'undefined') return '';
             const div = document.createElement('div');
-            div.textContent = text;
+            div.textContent = String(text);
             return div.innerHTML;
         }
     </script>

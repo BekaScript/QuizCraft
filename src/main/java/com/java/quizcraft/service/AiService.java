@@ -24,32 +24,61 @@ public class AiService{
     private final RestTemplate restTemplate = new RestTemplate();
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public List<Question> generateQuiz(String prompt, String questionsAmount){
+    public List<Question> generateQuiz(String prompt, String questionsAmount, String quizType){
         try{
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             headers.set("Authorization", "Bearer "+apiKey);
 
-            String systemPrompt = "You are a quiz generator that creates questions in JSON format. " +
-                    "Generate " + questionsAmount + " questions" +
-                    "Each question should have the following format:\n" +
-                    "For multiple-choice: {\n" +
-                    "  \"questionText\": \"Question text\",\n" +
-                    "  \"questionType\": \"MULTIPLE_CHOICE\",\n" +
-                    "  \"options\": [\"Option 1\", \"Option 2\", \"Option 3\", \"Option 4\"],\n" +
-                    "  \"correctAnswerIndex\": 0,\n" +
-                    "  \"explanation\": \"Explanation of the answer\"\n" +
-                    "}\n" +
-                    "For written-answer: {\n" +
-                    "  \"questionText\": \"Question text\",\n" +
-                    "  \"questionType\": \"WRITTEN_ANSWER\",\n" +
-                    "  \"correctWrittenAnswer\": \"Correct answer\",\n" +
-                    "  \"explanation\": \"Explanation of the answer\"\n" +
-                    "}\n" +
-                    "The explanation for multiple-choice questions are not mandatory, you may just return space for explanation if you think it is unnecessary" +
-                    "But make sure to give explanation for written-answer questions" +
-                    "Return ONLY a JSON array of questions with no additional text.";
+            // Build the core system prompt
+            StringBuilder systemPromptBuilder = new StringBuilder();
+            systemPromptBuilder.append("You are a quiz generator that creates questions in JSON format. ");
+            
+            // Handle questionsAmount - if "auto", let AI decide, otherwise specify the number
+            if ("auto".equalsIgnoreCase(questionsAmount)) {
+                systemPromptBuilder.append("Generate an appropriate number of questions based on the content provided. ");
+                systemPromptBuilder.append("Use your judgment to determine the optimal number of questions for the given material. ");
+                systemPromptBuilder.append("Respond in the same language as the input prompt. ");
+            } else {
+                systemPromptBuilder.append("Generate ").append(questionsAmount).append(" questions. ");
+                systemPromptBuilder.append("Respond in the same language as the input prompt. ");
+            }
+
+            switch (quizType.toUpperCase()) {
+                case "MULTIPLE_CHOICE":
+                    systemPromptBuilder.append("All questions should be multiple-choice. ");
+                    systemPromptBuilder.append("Each question must follow this format: {\n")
+                                     .append("  \"questionText\": \"Question text\",\n")
+                                     .append("  \"questionType\": \"MULTIPLE_CHOICE\",\n")
+                                     .append("  \"options\": [\"Option 1\", \"Option 2\", \"Option 3\", \"Option 4\"],\n")
+                                     .append("  \"correctAnswerIndex\": 0,\n")
+                                     .append("  \"explanation\": \"Explanation of the answer (optional, can be an empty string)\"\n")
+                                     .append("}. ");
+                    break;
+                case "WRITTEN_ANSWER":
+                    systemPromptBuilder.append("All questions should be written-answer (open-ended). ");
+                    systemPromptBuilder.append("Each question must follow this format: {\n")
+                                     .append("  \"questionText\": \"Question text\",\n")
+                                     .append("  \"questionType\": \"WRITTEN_ANSWER\",\n")
+                                     .append("  \"correctWrittenAnswer\": \"The correct answer text\",\n")
+                                     .append("  \"explanation\": \"Explanation of the answer (mandatory)\"\n")
+                                     .append("}. ");
+                    break;
+                case "MIXED":
+                default:
+                    systemPromptBuilder.append("Questions can be a mix of multiple-choice and written-answer types. ");
+                    systemPromptBuilder.append("For multiple-choice, use format: {\n")
+                                     .append("  \"questionText\": \"Question text\", \"questionType\": \"MULTIPLE_CHOICE\", \"options\": [\"Opt1\", \"Opt2\", \"Opt3\", \"Opt4\"], \"correctAnswerIndex\": 0, \"explanation\": \"Optional explanation\"\n}");
+                    systemPromptBuilder.append(" For written-answer, use format: {\n")
+                                     .append("  \"questionText\": \"Question text\", \"questionType\": \"WRITTEN_ANSWER\", \"correctWrittenAnswer\": \"Correct answer text\", \"explanation\": \"Mandatory explanation\"\n}");
+                    break;
+            }
+            
+            systemPromptBuilder.append(" Ensure explanations for written-answer questions are always provided. For multiple-choice, explanations are optional. ");
+            systemPromptBuilder.append("Return ONLY a valid JSON array of questions with no additional introductory or concluding text outside the JSON structure itself.");
         
+            String systemPrompt = systemPromptBuilder.toString();
+
             Map<String,Object> responseBody = Map.of(
                 "model", "llama-3.3-70b-versatile",
                 "messages", List.of(
@@ -63,8 +92,18 @@ public class AiService{
 
             String content = (String) ((Map<String, Object>) ((List<Map<String, Object>>) response.get("choices")).get(0).get("message")).get("content");
             
+            System.out.println("Quiz Type Requested: " + quizType);
             System.out.println("Raw AI Response JSON: " + content);
             
+            // Attempt to clean the response if it's not a perfect JSON array
+            content = content.trim();
+            if (!content.startsWith("[") && content.contains("[")) {
+                content = content.substring(content.indexOf("["));
+            }
+            if (!content.endsWith("]") && content.contains("]")) {
+                content = content.substring(0, content.lastIndexOf("]") + 1);
+            }
+
             return objectMapper.readValue(content, objectMapper.getTypeFactory().constructCollectionType(List.class, Question.class));
         } catch(Exception e){
             System.err.println("Error during AI quiz generation or parsing: " + e.getMessage());
